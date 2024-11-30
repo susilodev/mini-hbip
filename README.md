@@ -1,39 +1,62 @@
-# Project mini-hibp
+# Self-Hosted HIBP API with Go
 
-One Paragraph of project description goes here
+This repository demonstrates a self-hosted [Have I Been Pwned (HIBP)](https://haveibeenpwned.com/Passwords) API using Go and the standard library. The project includes a script to convert a hibp.txt file (containing password hashes and their counts) into a SQLite database and an HTTP API to query the data. this repo source including:
 
-## Getting Started
+1. **Convert HIBP Text File to SQLite:**
+   A script to convert the `hibp.txt` file into a SQLite database for fast and efficient queries.
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+2. **API for Hash Query:**
+   A simple HTTP API to check if a password hash prefix and suffix exist in the database.
 
-## MakeFile
+3. **Go Standard Library:**
+   the project uses only the Go standard library for simplicity and performance.
 
-Run build make command with tests
+Project Structure:
+
 ```bash
-make all
+├── cmd
+│ └── api
+│   └── main.go # API server entry point
+├── internal
+│ ├── database
+│ │ └── database.go # Database initialization and queries
+│ └── handler
+│   └── handler.go # API request handlers
+├── scripts
+│ └── convert.go # Script to convert hibp.txt to SQLite
+├── data
+│ └── hibp.db # Generated SQLite database (ignored in .gitignore)
+├── .env # Environment variables
+├── go.mod # Go module file
+└── README.md # Project documentation
 ```
 
-Build the application
+## Run the script to convert the hibp.txt file to a SQLite database
+
 ```bash
-make build
+go run scripts/convert.go
 ```
 
-Run the application
+## Run the server
+
 ```bash
-make run
+go run cmd/api/main.go
 ```
 
-Live reload the application:
-```bash
-make watch
+## env variable
+
+```
+SERVER_PORT=3000
+DB_PATH=../../data/hbip.db
+TEXT_PATH=../../data/hbip_example.txt
+API_VERSION=v1
 ```
 
-Run the test suite:
-```bash
-make test
-```
+## Performance Considerations
 
-Clean up binary from the last build:
-```bash
-make clean
-```
+- Compression: You can add Gzip compression to reduce the response size and improve performance.
+- Caching: Add caching headers to reduce repeated queries for the same hash prefix.
+
+## License
+
+This project is licensed under the [MIT License](https://opensource.org/license/mit). See the LICENSE file for details.
