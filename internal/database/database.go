@@ -7,12 +7,10 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// DB adalah tipe untuk representasi koneksi database
 type DB struct {
 	*sql.DB
 }
 
-// InitDatabase membuka koneksi ke database dan mengembalikan objek DB
 func InitDatabase(dbPath string) (*sql.DB, error) {
 	if dbPath == "" {
 		return nil, fmt.Errorf("database path is empty")
@@ -26,7 +24,7 @@ func InitDatabase(dbPath string) (*sql.DB, error) {
 	return db, nil
 }
 
-// GetSuffixesByPrefix mencari suffix berdasarkan prefix
+// finding suffix base on prefix
 func GetSuffixesByPrefix(db *DB, prefix string) ([]string, error) {
 	query := `SELECT suffix FROM hibp WHERE prefix = ?`
 	rows, err := db.Query(query, prefix)
