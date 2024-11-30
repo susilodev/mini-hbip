@@ -13,14 +13,15 @@ This repository demonstrates a self-hosted [Have I Been Pwned (HIBP)](https://ha
 
 Project Structure:
 
+```bash
 ├── cmd
 │ └── api
-│ └── main.go # API server entry point
+│   └── main.go # API server entry point
 ├── internal
 │ ├── database
 │ │ └── database.go # Database initialization and queries
 │ └── handler
-│ └── handler.go # API request handlers
+│   └── handler.go # API request handlers
 ├── scripts
 │ └── text_to_sqlite.go # Script to convert hibp.txt to SQLite
 ├── data
@@ -28,6 +29,7 @@ Project Structure:
 ├── .env # Environment variables
 ├── go.mod # Go module file
 └── README.md # Project documentation
+```
 
 ## Run the script to convert the hibp.txt file to a SQLite database
 
