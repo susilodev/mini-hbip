@@ -1,57 +1,53 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"log"
+	"mini-hibp/internal/database"
+	"mini-hibp/internal/handler"
 	"net/http"
-	"os/signal"
-	"syscall"
-	"time"
+	"os"
 
-	"mini-hibp/internal/server"
+	"github.com/joho/godotenv"
+	"github.com/rs/cors"
 )
 
-func gracefulShutdown(apiServer *http.Server, done chan bool) {
-	// Create context that listens for the interrupt signal from the OS.
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
-
-	// Listen for the interrupt signal.
-	<-ctx.Done()
-
-	log.Println("shutting down gracefully, press Ctrl+C again to force")
-
-	// The context is used to inform the server it has 5 seconds to finish
-	// the request it is currently handling
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := apiServer.Shutdown(ctx); err != nil {
-		log.Printf("Server forced to shutdown with error: %v", err)
-	}
-
-	log.Println("Server exiting")
-
-	// Notify the main goroutine that the shutdown is complete
-	done <- true
-}
-
 func main() {
-
-	server := server.NewServer()
-
-	// Create a done channel to signal when the shutdown is complete
-	done := make(chan bool, 1)
-
-	// Run graceful shutdown in a separate goroutine
-	go gracefulShutdown(server, done)
-
-	err := server.ListenAndServe()
-	if err != nil && err != http.ErrServerClosed {
-		panic(fmt.Sprintf("http server error: %s", err))
+	err := godotenv.Load("../../.env")
+	if err != nil {
+		log.Fatalf("Error loading .env file")
 	}
 
-	// Wait for the graceful shutdown to complete
-	<-done
-	log.Println("Graceful shutdown complete.")
+	port := os.Getenv("SERVER_PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	// db init
+	db, err := database.InitDatabase(os.Getenv("DB_PATH"))
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+	defer db.Close()
+
+	router := http.NewServeMux()
+
+	router.HandleFunc("/api/v1/hibp", handler.CheckHandler(db))
+
+	// CORS setup
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"}, // Ganti dengan URL frontend kamu
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	})
+
+	// Wrap router with CORS middleware
+	handlerWithCORS := corsHandler.Handler(router)
+
+	log.Printf("Server running on port %s", port)
+
+	err = http.ListenAndServe(":"+port, handlerWithCORS)
+	if err != nil {
+		log.Fatalf("Server failed: %v", err)
+	}
 }
