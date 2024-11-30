@@ -23,7 +23,7 @@ Project Structure:
 │ └── handler
 │   └── handler.go # API request handlers
 ├── scripts
-│ └── convert.go # Script to convert hibp.txt to SQLite
+│ └── text_to_sqlite.go # Script to convert hibp.txt to SQLite
 ├── data
 │ └── hibp.db # Generated SQLite database (ignored in .gitignore)
 ├── .env # Environment variables
@@ -34,7 +34,7 @@ Project Structure:
 ## Run the script to convert the hibp.txt file to a SQLite database
 
 ```bash
-go run scripts/convert.go
+go run scripts/text_to_sqlite.go
 ```
 
 ## Run the server
